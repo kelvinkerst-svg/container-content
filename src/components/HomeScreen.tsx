@@ -3,6 +3,7 @@ import { Search, QrCode, Plus, Settings, LogOut } from 'lucide-react';
 import { Container } from '../types';
 import { searchContainers } from '../utils/searchUtils';
 import { useAuth } from '../contexts/AuthContext';
+import appLogo from '/app_logo.png';
 
 interface HomeScreenProps {
   onScanQR: () => void;
@@ -56,7 +57,7 @@ export default function HomeScreen({
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <img
-              src="/app_logo.png"
+              src={appLogo}
               alt="Kristi's Krap"
               className="h-12 w-auto object-contain"
             />
