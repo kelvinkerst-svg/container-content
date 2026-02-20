@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { X, Camera, Keyboard } from 'lucide-react';
 import { normalizeContainerId, getContainerIdError } from '../utils/containerUtils';
-import { db } from '../db';
+import { getContainer } from '../lib/supabaseDb';
 
 interface QRScannerProps {
   onClose: () => void;
@@ -72,7 +72,7 @@ export default function QRScanner({ onClose, onContainerFound, onCreateContainer
     setScanning(false);
     stopScanning();
 
-    const existingContainer = await db.containers.get(normalized);
+    const existingContainer = await getContainer(normalized);
 
     if (existingContainer) {
       onContainerFound(normalized);

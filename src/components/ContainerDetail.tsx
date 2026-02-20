@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Camera, Edit, Trash2, MapPin } from 'lucide-react';
 import { Container, Photo } from '../types';
-import { db } from '../db';
+import { getContainer, getPhotosByContainer, createPhoto, updateContainer, deleteContainer, deletePhoto } from '../lib/supabaseDb';
 import { blobToDataUrl } from '../utils/imageUtils';
 import PhotoViewer from './PhotoViewer';
 import PhotoUploadDialog from './PhotoUploadDialog';
@@ -27,11 +27,10 @@ export default function ContainerDetail({ containerId, onBack, onEdit }: Contain
   const loadContainer = async () => {
     setLoading(true);
     try {
-      const containerData = await db.containers.get(containerId);
-      setContainer(containerData || null);
+      const containerData = await getContainer(containerId);
+      setContainer(containerData);
 
-      const photoData = await db.photos.where('containerId').equals(containerId).toArray();
-      photoData.sort((a, b) => b.createdAt - a.createdAt);
+      const photoData = await getPhotosByContainer(containerId);
       setPhotos(photoData);
 
       const urls: Record<string, string> = {};
@@ -68,10 +67,12 @@ export default function ContainerDetail({ containerId, onBack, onEdit }: Contain
           createdAt: Date.now()
         };
 
-        await db.photos.add(photo);
+        await createPhoto(photo);
       }
 
-      await db.containers.update(containerId, { updatedAt: Date.now() });
+      if (container) {
+        await updateContainer({ ...container, updatedAt: Date.now() });
+      }
       setSelectedFiles(null);
       await loadContainer();
     } catch (error) {
@@ -85,8 +86,10 @@ export default function ContainerDetail({ containerId, onBack, onEdit }: Contain
     if (!confirm('Delete this photo?')) return;
 
     try {
-      await db.photos.delete(photoId);
-      await db.containers.update(containerId, { updatedAt: Date.now() });
+      await deletePhoto(photoId);
+      if (container) {
+        await updateContainer({ ...container, updatedAt: Date.now() });
+      }
       await loadContainer();
     } catch (error) {
       console.error('Failed to delete photo:', error);
@@ -98,8 +101,7 @@ export default function ContainerDetail({ containerId, onBack, onEdit }: Contain
     if (!confirm('Delete this container and all its photos? This cannot be undone.')) return;
 
     try {
-      await db.photos.where('containerId').equals(containerId).delete();
-      await db.containers.delete(containerId);
+      await deleteContainer(containerId);
       onBack();
     } catch (error) {
       console.error('Failed to delete container:', error);

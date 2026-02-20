@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Copy, Shuffle } from 'lucide-react';
 import { Container } from '../types';
-import { db } from '../db';
+import { getContainer, createContainer, updateContainer } from '../lib/supabaseDb';
 import { normalizeContainerId, getContainerIdError, generateContainerId } from '../utils/containerUtils';
 
 interface ContainerFormProps {
@@ -28,7 +28,7 @@ export default function ContainerForm({ containerId, onClose, onSave }: Containe
   const loadContainer = async () => {
     if (!containerId) return;
 
-    const container = await db.containers.get(containerId);
+    const container = await getContainer(containerId);
     if (container) {
       setId(container.id);
       setLabel(container.label);
@@ -43,7 +43,7 @@ export default function ContainerForm({ containerId, onClose, onSave }: Containe
 
   const handleGenerateId = async () => {
     let newId = generateContainerId();
-    while (await db.containers.get(newId)) {
+    while (await getContainer(newId)) {
       newId = generateContainerId();
     }
     setId(newId);
@@ -66,7 +66,7 @@ export default function ContainerForm({ containerId, onClose, onSave }: Containe
     }
 
     if (!isEditing) {
-      const existing = await db.containers.get(normalizedId);
+      const existing = await getContainer(normalizedId);
       if (existing) {
         setError(`Container with ID ${normalizedId} already exists`);
         return;
@@ -77,19 +77,20 @@ export default function ContainerForm({ containerId, onClose, onSave }: Containe
 
     try {
       const now = Date.now();
+      const existingContainer = isEditing ? await getContainer(normalizedId) : null;
       const containerData: Container = {
         id: normalizedId,
         label: label.trim() || 'Unlabeled',
         location: location.trim(),
         notes: notes.trim() || undefined,
-        createdAt: isEditing ? (await db.containers.get(normalizedId))!.createdAt : now,
+        createdAt: existingContainer ? existingContainer.createdAt : now,
         updatedAt: now
       };
 
       if (isEditing) {
-        await db.containers.update(normalizedId, containerData);
+        await updateContainer(containerData);
       } else {
-        await db.containers.add(containerData);
+        await createContainer(containerData);
       }
 
       onSave(normalizedId);
