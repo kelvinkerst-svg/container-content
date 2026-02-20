@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Camera, Edit, Trash2, MapPin } from 'lucide-react';
 import { Container, Photo } from '../types';
-import { getContainer, getPhotosByContainer, createPhoto, updateContainer, deleteContainer, deletePhoto } from '../lib/supabaseDb';
+import { getContainer, getPhotosByContainer, createPhoto, updateContainer, deleteContainer, deletePhoto } from '../db';
 import { blobToDataUrl } from '../utils/imageUtils';
 import PhotoViewer from './PhotoViewer';
 import PhotoUploadDialog from './PhotoUploadDialog';

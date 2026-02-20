@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { X, Camera, Keyboard } from 'lucide-react';
 import { normalizeContainerId, getContainerIdError } from '../utils/containerUtils';
-import { getContainer } from '../lib/supabaseDb';
+import { getContainer } from '../db';
 
 interface QRScannerProps {
   onClose: () => void;

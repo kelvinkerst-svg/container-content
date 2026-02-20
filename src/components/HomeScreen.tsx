@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Search, QrCode, Plus, Settings, LogOut } from 'lucide-react';
+import { Search, QrCode, Plus, Settings } from 'lucide-react';
 import { Container } from '../types';
 import { searchContainers } from '../utils/searchUtils';
-import { useAuth } from '../contexts/AuthContext';
+import { getPhotoCount } from '../db';
 import appLogo from '/app_logo.png';
 
 interface HomeScreenProps {
@@ -18,12 +18,10 @@ export default function HomeScreen({
   onOpenContainer,
   onOpenSettings
 }: HomeScreenProps) {
-  const { signOut, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [containers, setContainers] = useState<Container[]>([]);
   const [photoCounts, setPhotoCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
-  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     loadContainers();
@@ -37,7 +35,7 @@ export default function HomeScreen({
 
       const counts: Record<string, number> = {};
       for (const container of results) {
-        counts[container.id] = 0;
+        counts[container.id] = await getPhotoCount(container.id);
       }
       setPhotoCounts(counts);
     } catch (error) {
@@ -45,10 +43,6 @@ export default function HomeScreen({
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
   };
 
   return (
@@ -61,38 +55,12 @@ export default function HomeScreen({
               alt="Kristi's Krap"
               className="h-12 w-auto object-contain"
             />
-            <div className="flex items-center gap-2">
-              <button
-                onClick={onOpenSettings}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-6 h-6" />
-              </button>
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                    {user?.email?.[0].toUpperCase() || 'U'}
-                  </div>
-                </button>
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                    <div className="p-3 border-b border-gray-200">
-                      <p className="text-sm text-gray-600 truncate">{user?.email}</p>
-                    </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              onClick={onOpenSettings}
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Settings className="w-6 h-6" />
+            </button>
           </div>
 
           <div className="relative mb-4">

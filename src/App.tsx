@@ -1,7 +1,4 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { useAuth } from './contexts/AuthContext';
-import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
 import QRScanner from './components/QRScanner';
 import ContainerDetail from './components/ContainerDetail';
@@ -16,23 +13,7 @@ type Screen =
   | { type: 'settings' };
 
 function App() {
-  const { user, loading } = useAuth();
   const [screen, setScreen] = useState<Screen>({ type: 'home' });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-slate-900 mx-auto mb-4" />
-          <p className="text-slate-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthScreen />;
-  }
 
   const navigateToHome = () => setScreen({ type: 'home' });
   const navigateToScan = () => setScreen({ type: 'scan' });

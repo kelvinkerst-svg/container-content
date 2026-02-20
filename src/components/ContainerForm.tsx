@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Copy, Shuffle } from 'lucide-react';
 import { Container } from '../types';
-import { getContainer, createContainer, updateContainer } from '../lib/supabaseDb';
+import { getContainer, createContainer, updateContainer } from '../db';
 import { normalizeContainerId, getContainerIdError, generateContainerId } from '../utils/containerUtils';
 
 interface ContainerFormProps {

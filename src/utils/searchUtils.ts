@@ -1,6 +1,5 @@
-import { getAllContainers } from '../lib/supabaseDb';
+import { getAllContainers, db } from '../db';
 import { Container } from '../types';
-import { supabase } from '../supabase';
 
 export async function searchContainers(query: string): Promise<Container[]> {
   if (!query.trim()) {
@@ -22,16 +21,11 @@ export async function searchContainers(query: string): Promise<Container[]> {
     }
   }
 
-  const { data: photos } = await supabase
-    .from('photos')
-    .select('container_id, description')
-    .not('description', 'is', null);
+  const photos = await db.photos.toArray();
 
-  if (photos) {
-    for (const photo of photos) {
-      if (photo.description && photo.description.toLowerCase().includes(searchTerm)) {
-        matchingContainerIds.add(photo.container_id);
-      }
+  for (const photo of photos) {
+    if (photo.description && photo.description.toLowerCase().includes(searchTerm)) {
+      matchingContainerIds.add(photo.containerId);
     }
   }
 
