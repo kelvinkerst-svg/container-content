@@ -1,6 +1,6 @@
 # Container Contents
 
-An  offline-first PWA for managing container inventories with QR code scanning. Keep track of what's in your physical containers by scanning QR code labels and adding photos with descriptions.
+An offline-first PWA for managing container inventories with QR code scanning. Keep track of what's in your physical containers by scanning QR code labels and adding photos with descriptions.
 
 ## Features
 
